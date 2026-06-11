@@ -1,0 +1,6 @@
+{
+  "name": "Un petit monde pour Toi",
+  "description": "Une expérience interactive d'anniversaire personnalisée en plusieurs étapes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

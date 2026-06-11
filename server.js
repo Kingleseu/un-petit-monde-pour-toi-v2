@@ -57,6 +57,30 @@ app.post('/api/messages', (req, res) => {
   res.json({ success: true, messages });
 });
 
+// API to delete a message by index
+app.delete('/api/messages', (req, res) => {
+  const index = Number(req.query.index);
+  if (!Number.isInteger(index) || index < 0) {
+    return res.status(400).json({ error: 'Valid message index is required' });
+  }
+
+  const messages = getMessages();
+  if (index >= messages.length) {
+    return res.status(404).json({ error: 'Message not found' });
+  }
+
+  messages.splice(index, 1);
+
+  try {
+    fs.writeFileSync(messagesFilePath, JSON.stringify(messages, null, 2));
+  } catch (e) {
+    console.error("Error writing messages.json", e);
+    return res.status(500).json({ error: 'Failed to delete message' });
+  }
+
+  res.json({ success: true, messages });
+});
+
 // All other requests serve index.html (SPA routing fallback)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));

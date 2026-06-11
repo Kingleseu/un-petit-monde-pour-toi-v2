@@ -63,7 +63,7 @@ const Textarea = ({ label, value, onChange }: any) => (
 );
 
 export function AdminPanel({ onClose }: { onClose: () => void }) {
-  const { content, updateContent, resetContent } = useContent();
+  const { content, updateContent, resetContent, dynamicMessages, deleteMessage } = useContent();
   const [formData, setFormData] = useState<AppContent>(content);
   const [copied, setCopied] = useState(false);
 
@@ -78,6 +78,16 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
 
   const handleChange = (field: keyof AppContent, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleGuestbookChange = (field: keyof NonNullable<AppContent['guestbookForm']>, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      guestbookForm: {
+        ...prev.guestbookForm!,
+        [field]: value
+      }
+    }));
   };
 
   const handleSave = () => {
@@ -328,16 +338,81 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
                 <div key={i} className="bg-white/5 border border-white/10 p-4 rounded-xl relative">
                   <Textarea label="Message" value={msg.text} onChange={(val: string) => updateArrayItem('friendMessages', i, 'text', val)} />
                   <Input label="Auteur / Signataire" value={msg.author} onChange={(val: string) => updateArrayItem('friendMessages', i, 'author', val)} />
+                  <Input label="Mot dans le coeur" value={msg.word || ''} onChange={(val: string) => updateArrayItem('friendMessages', i, 'word', val)} />
                   <button onClick={() => removeArrayItem('friendMessages', i)} className="absolute top-4 right-4 text-white/30 hover:text-red-400"><Trash2 className="w-5 h-5"/></button>
                 </div>
               ))}
             </div>
             <button 
-              onClick={() => addArrayItem('friendMessages', { text: "", author: "" })} 
+              onClick={() => addArrayItem('friendMessages', { text: "", author: "", word: "" })} 
               className="mt-4 w-full py-4 border border-dashed border-white/20 rounded-xl hover:border-[#D4AF37] hover:bg-[#D4AF37]/5 text-white/50 hover:text-[#D4AF37] transition-colors flex items-center justify-center gap-2 text-sm uppercase tracking-widest"
             >
               <Plus className="w-4 h-4"/> Ajouter un message
             </button>
+
+            <div className="mt-10">
+              <Textarea
+                label="Mots par defaut du coeur (un mot par ligne)"
+                value={(formData.defaultWords || []).join('\n')}
+                onChange={(val: string) =>
+                  handleChange(
+                    'defaultWords',
+                    val
+                      .split('\n')
+                      .map((line) => line.trim())
+                      .filter(Boolean)
+                  )
+                }
+              />
+              <p className="text-white/40 text-xs mt-1">
+                Supprime toutes les lignes pour retirer les mots par defaut et ne garder que les mots envoyes ou ajoutes dans les messages.
+              </p>
+            </div>
+
+            {dynamicMessages.length > 0 && (
+              <div className="mt-10 space-y-4">
+                <h4 className="text-sm uppercase tracking-widest text-[#D4AF37]">Messages recus via le formulaire</h4>
+                {dynamicMessages.map((msg, i) => (
+                  <div key={`${msg.author}-${i}`} className="bg-white/5 border border-white/10 p-4 rounded-xl flex flex-col md:flex-row gap-4 md:items-start justify-between">
+                    <div className="space-y-2">
+                      <p className="text-white/80 font-serif italic">"{msg.text}"</p>
+                      <p className="text-xs uppercase tracking-widest text-white/40">{msg.author} - {msg.word || 'Sans mot'}</p>
+                    </div>
+                    <button
+                      onClick={() => deleteMessage(i)}
+                      className="self-start text-red-300 hover:text-red-200 border border-red-400/20 hover:border-red-400/40 rounded-full px-3 py-2 text-xs uppercase tracking-widest transition-colors"
+                    >
+                      Supprimer
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* Guestbook Form */}
+          <section>
+            <h3 className="text-xl font-serif text-white mb-6 border-l-2 border-[#D4AF37] pl-4">Formulaire de temoignage</h3>
+            <p className="text-white/40 text-sm mb-4">
+              Utilise {'{name}'} dans les textes pour afficher automatiquement le prenom du destinataire.
+            </p>
+            <div className="grid md:grid-cols-2 gap-4">
+              <Input label="Titre du formulaire" value={formData.guestbookForm?.title || ''} onChange={(val: string) => handleGuestbookChange('title', val)} />
+              <Input label="Texte du bouton" value={formData.guestbookForm?.submitText || ''} onChange={(val: string) => handleGuestbookChange('submitText', val)} />
+            </div>
+            <Textarea label="Description du formulaire" value={formData.guestbookForm?.description || ''} onChange={(val: string) => handleGuestbookChange('description', val)} />
+            <div className="grid md:grid-cols-2 gap-4">
+              <Input label="Label nom" value={formData.guestbookForm?.authorLabel || ''} onChange={(val: string) => handleGuestbookChange('authorLabel', val)} />
+              <Input label="Placeholder nom" value={formData.guestbookForm?.authorPlaceholder || ''} onChange={(val: string) => handleGuestbookChange('authorPlaceholder', val)} />
+              <Input label="Label mot" value={formData.guestbookForm?.wordLabel || ''} onChange={(val: string) => handleGuestbookChange('wordLabel', val)} />
+              <Input label="Placeholder mot" value={formData.guestbookForm?.wordPlaceholder || ''} onChange={(val: string) => handleGuestbookChange('wordPlaceholder', val)} />
+              <Input label="Label message" value={formData.guestbookForm?.messageLabel || ''} onChange={(val: string) => handleGuestbookChange('messageLabel', val)} />
+              <Input label="Placeholder message" value={formData.guestbookForm?.messagePlaceholder || ''} onChange={(val: string) => handleGuestbookChange('messagePlaceholder', val)} />
+              <Input label="Texte pendant envoi" value={formData.guestbookForm?.submittingText || ''} onChange={(val: string) => handleGuestbookChange('submittingText', val)} />
+              <Input label="Bouton autre message" value={formData.guestbookForm?.writeAnotherText || ''} onChange={(val: string) => handleGuestbookChange('writeAnotherText', val)} />
+            </div>
+            <Input label="Titre succes" value={formData.guestbookForm?.successTitle || ''} onChange={(val: string) => handleGuestbookChange('successTitle', val)} />
+            <Textarea label="Message succes" value={formData.guestbookForm?.successMessage || ''} onChange={(val: string) => handleGuestbookChange('successMessage', val)} />
           </section>
 
           {/* Guestbook Share Link */}

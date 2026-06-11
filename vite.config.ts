@@ -56,6 +56,35 @@ export default defineConfig(() => {
                 res.statusCode = 400;
                 res.end(JSON.stringify({ error: 'Invalid message data' }));
               });
+            } else if (urlPath === '/api/messages' && req.method === 'DELETE') {
+              const requestUrl = new URL(req.url || '', 'http://localhost');
+              const index = Number(requestUrl.searchParams.get('index'));
+              if (!Number.isInteger(index) || index < 0) {
+                res.statusCode = 400;
+                res.end(JSON.stringify({ error: 'Valid message index is required' }));
+                return;
+              }
+
+              const filePath = path.resolve(__dirname, 'messages.json');
+              let messages = [];
+              if (fs.existsSync(filePath)) {
+                try {
+                  messages = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+                } catch (e) {
+                  console.error(e);
+                }
+              }
+
+              if (index >= messages.length) {
+                res.statusCode = 404;
+                res.end(JSON.stringify({ error: 'Message not found' }));
+                return;
+              }
+
+              messages.splice(index, 1);
+              fs.writeFileSync(filePath, JSON.stringify(messages, null, 2));
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ success: true, messages }));
             } else {
               next();
             }

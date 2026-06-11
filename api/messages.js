@@ -29,6 +29,13 @@ export default function handler(req, res) {
     });
   }
 
-  res.setHeader('Allow', ['GET', 'POST']);
+  if (req.method === 'DELETE') {
+    return res.status(503).json({
+      error:
+        'Message deletion needs a database or storage provider when deployed on Vercel.',
+    });
+  }
+
+  res.setHeader('Allow', ['GET', 'POST', 'DELETE']);
   return res.status(405).json({ error: 'Method not allowed' });
 }

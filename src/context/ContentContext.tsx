@@ -2,76 +2,118 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { AppContent } from '../types';
 
 const defaultContent: AppContent = {
-  recipientName: "Toi",
-  introText1: "Ce site existe pour une seule personne : ",
-  introText2: "Aujourd'hui, je ne voulais pas juste t'envoyer un message. Je voulais te créer un petit endroit à toi.",
-  introText3: "À l'intérieur, il y a des souvenirs, des mots, des sourires, et une surprise.",
+  recipientName: 'Toi',
+  introText1: 'Ce site existe pour une seule personne : ',
+  introText2: "Aujourd'hui, je ne voulais pas juste t'envoyer un message. Je voulais te creer un petit endroit a toi.",
+  introText3: "A l'interieur, il y a des souvenirs, des mots, des sourires, et une surprise.",
   capsuleCards: [
     {
       title: "Ce que j'aime chez toi",
-      content: "Ta capacité à rendre n'importe quel moment banal en quelque chose de spécial et chaleureux."
+      content: "Ta capacite a rendre n'importe quel moment banal en quelque chose de special et chaleureux."
     },
     {
-      title: "Un souvenir gravé",
-      content: "Ce jour-là où l'on a ri pour absolument rien. Je m'en souviens comme si c'était hier."
+      title: 'Un souvenir grave',
+      content: "Ce jour-la ou l'on a ri pour absolument rien. Je m'en souviens comme si c'etait hier."
     },
     {
-      title: "Ta qualité cachée",
-      content: "Ton écoute silencieuse. Tu as cette manière unique de rassurer sans même avoir besoin de parler."
+      title: 'Ta qualite cachee',
+      content: "Ton ecoute silencieuse. Tu as cette maniere unique de rassurer sans meme avoir besoin de parler."
     },
     {
-      title: "Ce que tu mérites",
-      content: "De te voir avec les mêmes yeux que ceux avec lesquels je te regarde. Tu es exceptionnel(le)."
+      title: 'Ce que tu merites',
+      content: 'De te voir avec les memes yeux que ceux avec lesquels je te regarde. Tu es exceptionnel(le).'
     },
     {
-      title: "Une phrase pour toi",
-      content: "\"Ne change jamais ta façon de briller, même quand tu doutes de ta propre lumière.\""
+      title: 'Une phrase pour toi',
+      content: '"Ne change jamais ta facon de briller, meme quand tu doutes de ta propre lumiere."'
     }
   ],
   galleryPhotos: [
     {
-      url: "https://images.unsplash.com/photo-1516962215378-7fa2e137ae93",
-      caption: "Ce jour-là, je crois qu'on ne savait même pas que ça allait devenir un si beau souvenir."
+      url: 'https://images.unsplash.com/photo-1516962215378-7fa2e137ae93',
+      caption: "Ce jour-la, je crois qu'on ne savait meme pas que ca allait devenir un si beau souvenir."
     },
     {
-      url: "https://images.unsplash.com/photo-1502444330042-d1a1ddf9d779",
-      caption: "Une image simple, mais un moment qui compte tellement pour moi."
+      url: 'https://images.unsplash.com/photo-1502444330042-d1a1ddf9d779',
+      caption: 'Une image simple, mais un moment qui compte tellement pour moi.'
     },
     {
-      url: "https://images.unsplash.com/photo-1490578474895-699cd4e2cf59",
-      caption: "Chaque détail de cette journée a sa propre histoire."
+      url: 'https://images.unsplash.com/photo-1490578474895-699cd4e2cf59',
+      caption: 'Chaque detail de cette journee a sa propre histoire.'
     }
   ],
   playlistTitle: "L'Air de la Mer",
-  playlistSubtitle: "02:45 / 04:12",
+  playlistSubtitle: '02:45 / 04:12',
   letterParts: [
-    "Je voulais que ce cadeau soit différent.",
-    "Pas forcément grand, pas forcément cher. Mais personnel.",
-    "Quelque chose qui montre que j'ai pris le temps de penser à toi, à ce que tu représentes, et à la manière dont tu mérites d'être célébré(e).",
-    "Il y a des gens qui traversent la vie sans faire de bruit, et il y a toi.",
-    "Tu as cette lumière qui fait du bien, cette présence qui rassure.",
-    "Cette année, je te souhaite de réaliser à quel point tu es important(e) pour ceux qui t'entourent.",
-    "N'oublie jamais que tu mérites ce qu'il y a de plus beau."
+    'Je voulais que ce cadeau soit different.',
+    'Pas forcement grand, pas forcement cher. Mais personnel.',
+    "Quelque chose qui montre que j'ai pris le temps de penser a toi, a ce que tu representes, et a la maniere dont tu merites d'etre celebre(e).",
+    'Il y a des gens qui traversent la vie sans faire de bruit, et il y a toi.',
+    'Tu as cette lumiere qui fait du bien, cette presence qui rassure.',
+    "Cette annee, je te souhaite de realiser a quel point tu es important(e) pour ceux qui t'entourent.",
+    "N'oublie jamais que tu merites ce qu'il y a de plus beau."
   ],
   friendMessages: [
-    { text: "Joyeux anniversaire ! Reste cette personne extraordinaire que tu es.", author: "Un ami", word: "Extraordinaire" },
-    { text: "Tu mérites tout le bonheur du monde. Profite de ta journée !", author: "Un proche", word: "Unique" },
-    { text: "Une année de plus pour briller, grandir et inspirer tout le monde autour de toi.", author: "Quelqu'un qui tient à toi", word: "Inspirante" },
-    { text: "Rien ne me fait plus plaisir que de te voir sourire aujourd'hui.", author: "Un(e) confident(e)", word: "Solaire" }
+    { text: 'Joyeux anniversaire ! Reste cette personne extraordinaire que tu es.', author: 'Un ami', word: 'Extraordinaire' },
+    { text: 'Tu merites tout le bonheur du monde. Profite de ta journee !', author: 'Un proche', word: 'Unique' },
+    { text: 'Une annee de plus pour briller, grandir et inspirer tout le monde autour de toi.', author: "Quelqu'un qui tient a toi", word: 'Inspirante' },
+    { text: 'Rien ne me fait plus plaisir que de te voir sourire aujourd hui.', author: 'Un(e) confident(e)', word: 'Solaire' }
   ],
-  surpriseTitle: "Ton vrai cadeau \n t'attend.",
+  defaultWords: [
+    'Solaire',
+    'Unique',
+    'Bienveillante',
+    'Lumineuse',
+    'Sincere',
+    'Drole',
+    'Genereuse',
+    'Brillante',
+    'Attentionnee',
+    'Douce',
+    'Inestimable',
+    'Magique',
+    'Inspirante',
+    'Rayonnante',
+    'Precieuse',
+    'Complice',
+    'Formidable',
+    'Extraordinaire',
+    'Chaleureuse',
+    'Fidele',
+    'Souriante',
+    'Optimiste',
+    'Sensible',
+    'Creative',
+    'Adorable'
+  ],
+  surpriseTitle: 'Ton vrai cadeau \n t attend.',
   surpriseSubtitle: "Regarde bien dans l'enveloppe... ou autour de toi.",
-  surpriseText: "Ce n'est pas le cadeau le plus cher, mais c'est sûrement l'un des plus sincères que j'ai faits. Ce site restera ici, accessible quand tu voudras te rappeler que tu comptes.",
-  unlockCode: "",
-  audioUrl: "https://www.youtube.com/watch?v=y7e-GC6oGIZ",
+  surpriseText: "Ce n'est pas le cadeau le plus cher, mais c'est surement l'un des plus sinceres que j'ai faits. Ce site restera ici, accessible quand tu voudras te rappeler que tu comptes.",
+  unlockCode: '',
+  audioUrl: 'https://www.youtube.com/watch?v=y7e-GC6oGIZ',
   transitionMessages: [
     "Le chapitre suivant s'ouvre...",
-    "Un moment se dessine...",
-    "Souffle doux avant la suite...",
+    'Un moment se dessine...',
+    'Souffle doux avant la suite...',
     "L'aventure continue...",
-    "Prepare ton coeur...",
-    "La magie se prepare..."
-  ]
+    'Prepare ton coeur...',
+    'La magie se prepare...'
+  ],
+  guestbookForm: {
+    title: 'Un mot pour {name}',
+    description: "Nous preparons une surprise interactive pour {name}. Ecrivez un souvenir, un voeu ou un petit mot qui apparaitra sur son mur d'anniversaire !",
+    authorLabel: 'Votre Prenom / Nom',
+    authorPlaceholder: "Ex: Marine, Ton frere, Un ami d'enfance...",
+    wordLabel: 'Un mot qui decrit {name}',
+    wordPlaceholder: 'Ex: Lumineuse, Solaire, Unique, Genereux...',
+    messageLabel: 'Votre Message',
+    messagePlaceholder: 'Votre message chaleureux...',
+    submitText: 'Accrocher au mur',
+    submittingText: 'Envoi en cours...',
+    successTitle: 'Message envoye !',
+    successMessage: 'Votre mot doux a bien ete envoye et accroche sur le mur de {name}. Merci pour votre participation !',
+    writeAnotherText: 'Ecrire un autre message'
+  }
 };
 
 interface ContentContextType {
@@ -82,6 +124,7 @@ interface ContentContextType {
   setAudioPlaying: (playing: boolean) => void;
   dynamicMessages: { text: string; author: string; word?: string }[];
   addMessage: (text: string, author: string, word: string) => Promise<boolean>;
+  deleteMessage: (index: number) => Promise<boolean>;
   refreshMessages: () => Promise<void>;
 }
 
@@ -100,7 +143,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
         setDynamicMessages(data);
       }
     } catch (e) {
-      console.warn("Failed to fetch dynamic messages, using static fallback:", e);
+      console.warn('Failed to fetch dynamic messages, using static fallback:', e);
     }
   };
 
@@ -117,10 +160,28 @@ export function ContentProvider({ children }: { children: ReactNode }) {
         return true;
       }
     } catch (e) {
-      console.error("Failed to add message", e);
+      console.error('Failed to add message', e);
     }
-    // Fallback: add locally if backend is offline
+
     setDynamicMessages(prev => [...prev, { text, author, word }]);
+    return true;
+  };
+
+  const deleteMessage = async (index: number): Promise<boolean> => {
+    try {
+      const res = await fetch(`/api/messages?index=${index}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setDynamicMessages(data.messages);
+        return true;
+      }
+    } catch (e) {
+      console.error('Failed to delete message', e);
+    }
+
+    setDynamicMessages(prev => prev.filter((_, i) => i !== index));
     return true;
   };
 
@@ -128,9 +189,17 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     const saved = localStorage.getItem('birthdayRoomContent');
     if (saved) {
       try {
-        setContent({ ...defaultContent, ...JSON.parse(saved) });
+        const savedContent = JSON.parse(saved);
+        setContent({
+          ...defaultContent,
+          ...savedContent,
+          guestbookForm: {
+            ...defaultContent.guestbookForm,
+            ...savedContent.guestbookForm
+          }
+        });
       } catch (e) {
-        console.error("Failed to parse saved content", e);
+        console.error('Failed to parse saved content', e);
       }
     }
     fetchMessages();
@@ -147,7 +216,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <ContentContext.Provider value={{ content, updateContent, resetContent, audioPlaying, setAudioPlaying, dynamicMessages, addMessage, refreshMessages: fetchMessages }}>
+    <ContentContext.Provider value={{ content, updateContent, resetContent, audioPlaying, setAudioPlaying, dynamicMessages, addMessage, deleteMessage, refreshMessages: fetchMessages }}>
       {children}
     </ContentContext.Provider>
   );

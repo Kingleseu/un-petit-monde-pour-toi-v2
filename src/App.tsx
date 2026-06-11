@@ -57,7 +57,7 @@ function AppContentWrapper() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
         setStep((s) => Math.min(s + 1, 7));
         setShowTransition(false);
-      }, 1100);
+      }, 2400);
     }
   };
 

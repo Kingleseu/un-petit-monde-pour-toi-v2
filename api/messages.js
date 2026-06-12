@@ -1,39 +1,48 @@
-import fs from 'fs';
-import path from 'path';
+import { addMessage, deleteMessage, getMessages } from '../lib/messagesStore.js';
 
-function readMessages() {
-  const filePath = path.join(process.cwd(), 'messages.json');
-
-  try {
-    if (!fs.existsSync(filePath)) {
-      return [];
-    }
-
-    return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-  } catch (error) {
-    console.error('Unable to read messages.json', error);
-    return [];
-  }
-}
-
-export default function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method === 'GET') {
-    res.setHeader('Cache-Control', 'no-store');
-    return res.status(200).json(readMessages());
+    try {
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(200).json(await getMessages());
+    } catch (error) {
+      console.error('Unable to read messages', error);
+      return res.status(500).json({ error: 'Unable to read messages' });
+    }
   }
 
   if (req.method === 'POST') {
-    return res.status(503).json({
-      error:
-        'Message persistence needs a database or storage provider when deployed on Vercel.',
-    });
+    const { text, author, word } = req.body;
+    if (!text || !author) {
+      return res.status(400).json({ error: 'Text and author are required' });
+    }
+
+    try {
+      const messages = await addMessage({ text, author, word });
+      return res.status(200).json({ success: true, messages });
+    } catch (error) {
+      console.error('Unable to save message', error);
+      return res.status(500).json({ error: 'Unable to save message' });
+    }
   }
 
   if (req.method === 'DELETE') {
-    return res.status(503).json({
-      error:
-        'Message deletion needs a database or storage provider when deployed on Vercel.',
-    });
+    const index = Number(req.query.index);
+    if (!Number.isInteger(index) || index < 0) {
+      return res.status(400).json({ error: 'Valid message index is required' });
+    }
+
+    try {
+      const messages = await deleteMessage(index);
+      if (!messages) {
+        return res.status(404).json({ error: 'Message not found' });
+      }
+
+      return res.status(200).json({ success: true, messages });
+    } catch (error) {
+      console.error('Unable to delete message', error);
+      return res.status(500).json({ error: 'Unable to delete message' });
+    }
   }
 
   res.setHeader('Allow', ['GET', 'POST', 'DELETE']);

@@ -1,8 +1,9 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import fs from 'fs';
 import dotenv from 'dotenv';
+import { getContent, resetContent, saveContent } from './lib/contentStore.js';
+import { addMessage, deleteMessage, getMessages } from './lib/messagesStore.js';
 
 dotenv.config();
 
@@ -17,68 +18,78 @@ app.use(express.json());
 // Serve static files from the Vite build directory
 app.use(express.static(path.join(__dirname, 'dist')));
 
-const messagesFilePath = path.join(__dirname, 'messages.json');
-
-// Helper to read messages from JSON file safely
-function getMessages() {
-  let messages = [];
-  if (fs.existsSync(messagesFilePath)) {
-    try {
-      messages = JSON.parse(fs.readFileSync(messagesFilePath, 'utf-8'));
-    } catch (e) {
-      console.error("Error reading messages.json", e);
-    }
+app.get('/api/content', async (req, res) => {
+  try {
+    res.setHeader('Cache-Control', 'no-store');
+    res.json(await getContent());
+  } catch (e) {
+    console.error('Error reading content', e);
+    res.status(500).json({ error: 'Failed to read content' });
   }
-  return messages;
-}
+});
+
+app.put('/api/content', async (req, res) => {
+  try {
+    res.json(await saveContent(req.body));
+  } catch (e) {
+    console.error('Error saving content', e);
+    res.status(500).json({ error: 'Failed to save content' });
+  }
+});
+
+app.delete('/api/content', async (req, res) => {
+  try {
+    res.json(await resetContent());
+  } catch (e) {
+    console.error('Error resetting content', e);
+    res.status(500).json({ error: 'Failed to reset content' });
+  }
+});
 
 // API to get messages
-app.get('/api/messages', (req, res) => {
-  res.json(getMessages());
+app.get('/api/messages', async (req, res) => {
+  try {
+    res.json(await getMessages());
+  } catch (e) {
+    console.error('Error reading messages', e);
+    res.status(500).json({ error: 'Failed to read messages' });
+  }
 });
 
 // API to save a message
-app.post('/api/messages', (req, res) => {
+app.post('/api/messages', async (req, res) => {
   const { text, author, word } = req.body;
   if (!text || !author) {
     return res.status(400).json({ error: 'Text and author are required' });
   }
 
-  const messages = getMessages();
-  messages.push({ text, author, word });
-  
   try {
-    fs.writeFileSync(messagesFilePath, JSON.stringify(messages, null, 2));
+    const messages = await addMessage({ text, author, word });
+    res.json({ success: true, messages });
   } catch (e) {
-    console.error("Error writing messages.json", e);
+    console.error('Error writing message', e);
     return res.status(500).json({ error: 'Failed to save message' });
   }
-
-  res.json({ success: true, messages });
 });
 
 // API to delete a message by index
-app.delete('/api/messages', (req, res) => {
+app.delete('/api/messages', async (req, res) => {
   const index = Number(req.query.index);
   if (!Number.isInteger(index) || index < 0) {
     return res.status(400).json({ error: 'Valid message index is required' });
   }
 
-  const messages = getMessages();
-  if (index >= messages.length) {
-    return res.status(404).json({ error: 'Message not found' });
-  }
-
-  messages.splice(index, 1);
-
   try {
-    fs.writeFileSync(messagesFilePath, JSON.stringify(messages, null, 2));
+    const messages = await deleteMessage(index);
+    if (!messages) {
+      return res.status(404).json({ error: 'Message not found' });
+    }
+
+    res.json({ success: true, messages });
   } catch (e) {
-    console.error("Error writing messages.json", e);
+    console.error('Error deleting message', e);
     return res.status(500).json({ error: 'Failed to delete message' });
   }
-
-  res.json({ success: true, messages });
 });
 
 // All other requests serve index.html (SPA routing fallback)

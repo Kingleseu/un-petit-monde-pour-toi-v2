@@ -2,7 +2,28 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig} from 'vite';
-import fs from 'fs';
+import dotenv from 'dotenv';
+import { getContent, resetContent, saveContent } from './lib/contentStore.js';
+import { addMessage, deleteMessage, getMessages } from './lib/messagesStore.js';
+
+dotenv.config();
+
+function readRequestBody(req: import('http').IncomingMessage): Promise<any> {
+  return new Promise((resolve, reject) => {
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk;
+    });
+    req.on('end', () => {
+      try {
+        resolve(JSON.parse(body));
+      } catch (error) {
+        reject(error);
+      }
+    });
+    req.on('error', reject);
+  });
+}
 
 export default defineConfig(() => {
   return {
@@ -12,50 +33,66 @@ export default defineConfig(() => {
       {
         name: 'api-messages-middleware',
         configureServer(server) {
-          server.middlewares.use((req, res, next) => {
+          server.middlewares.use(async (req, res, next) => {
             const urlPath = req.url ? req.url.split('?')[0] : '';
-            if (urlPath === '/api/messages' && req.method === 'GET') {
-              const filePath = path.resolve(__dirname, 'messages.json');
-              let messages = [];
-              if (fs.existsSync(filePath)) {
-                try {
-                  messages = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-                } catch (e) {
-                  console.error(e);
-                }
+            if (urlPath === '/api/content' && req.method === 'GET') {
+              try {
+                const content = await getContent();
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(content));
+              } catch (e) {
+                console.error(e);
+                res.statusCode = 500;
+                res.end(JSON.stringify({ error: 'Failed to read content' }));
               }
-              res.setHeader('Content-Type', 'application/json');
-              res.end(JSON.stringify(messages));
+            } else if (urlPath === '/api/content' && req.method === 'PUT') {
+              try {
+                const data = await readRequestBody(req);
+                const content = await saveContent(data);
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(content));
+              } catch (e) {
+                console.error(e);
+                res.statusCode = 500;
+                res.end(JSON.stringify({ error: 'Failed to save content' }));
+              }
+            } else if (urlPath === '/api/content' && req.method === 'DELETE') {
+              try {
+                const content = await resetContent();
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(content));
+              } catch (e) {
+                console.error(e);
+                res.statusCode = 500;
+                res.end(JSON.stringify({ error: 'Failed to reset content' }));
+              }
+            } else if (urlPath === '/api/messages' && req.method === 'GET') {
+              try {
+                const messages = await getMessages();
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(messages));
+              } catch (e) {
+                console.error(e);
+                res.statusCode = 500;
+                res.end(JSON.stringify({ error: 'Failed to read messages' }));
+              }
             } else if (urlPath === '/api/messages' && req.method === 'POST') {
-              let body = '';
-              req.on('data', chunk => {
-                body += chunk;
-              });
-              req.on('end', () => {
-                try {
-                  const data = JSON.parse(body);
-                  if (data.text && data.author) {
-                    const filePath = path.resolve(__dirname, 'messages.json');
-                    let messages = [];
-                    if (fs.existsSync(filePath)) {
-                      try {
-                        messages = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-                      } catch (e) {
-                        console.error(e);
-                      }
-                    }
-                    messages.push({ text: data.text, author: data.author, word: data.word });
-                    fs.writeFileSync(filePath, JSON.stringify(messages, null, 2));
-                    res.setHeader('Content-Type', 'application/json');
-                    res.end(JSON.stringify({ success: true, messages }));
-                    return;
-                  }
-                } catch (e) {
-                  console.error(e);
+              try {
+                const data = await readRequestBody(req);
+                if (!data.text || !data.author) {
+                  res.statusCode = 400;
+                  res.end(JSON.stringify({ error: 'Text and author are required' }));
+                  return;
                 }
+
+                const messages = await addMessage({ text: data.text, author: data.author, word: data.word });
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ success: true, messages }));
+              } catch (e) {
+                console.error(e);
                 res.statusCode = 400;
                 res.end(JSON.stringify({ error: 'Invalid message data' }));
-              });
+              }
             } else if (urlPath === '/api/messages' && req.method === 'DELETE') {
               const requestUrl = new URL(req.url || '', 'http://localhost');
               const index = Number(requestUrl.searchParams.get('index'));
@@ -65,26 +102,21 @@ export default defineConfig(() => {
                 return;
               }
 
-              const filePath = path.resolve(__dirname, 'messages.json');
-              let messages = [];
-              if (fs.existsSync(filePath)) {
-                try {
-                  messages = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-                } catch (e) {
-                  console.error(e);
+              try {
+                const messages = await deleteMessage(index);
+                if (!messages) {
+                  res.statusCode = 404;
+                  res.end(JSON.stringify({ error: 'Message not found' }));
+                  return;
                 }
-              }
 
-              if (index >= messages.length) {
-                res.statusCode = 404;
-                res.end(JSON.stringify({ error: 'Message not found' }));
-                return;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ success: true, messages }));
+              } catch (e) {
+                console.error(e);
+                res.statusCode = 500;
+                res.end(JSON.stringify({ error: 'Failed to delete message' }));
               }
-
-              messages.splice(index, 1);
-              fs.writeFileSync(filePath, JSON.stringify(messages, null, 2));
-              res.setHeader('Content-Type', 'application/json');
-              res.end(JSON.stringify({ success: true, messages }));
             } else {
               next();
             }

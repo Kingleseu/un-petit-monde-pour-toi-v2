@@ -3,8 +3,11 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { getContent, resetContent, saveContent } from './lib/contentStore.js';
+import { uploadGalleryImage } from './lib/imageStore.js';
 import { addMessage, deleteMessage, getMessages } from './lib/messagesStore.js';
+import { checkSupabaseHealth } from './lib/supabaseHealth.js';
 
+dotenv.config({ path: '.env.local' });
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -13,10 +16,34 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
+app.use(express.json({ limit: '6mb' }));
 
 // Serve static files from the Vite build directory
 app.use(express.static(path.join(__dirname, 'dist')));
+
+app.post('/api/upload-image', async (req, res) => {
+  try {
+    const { image } = req.body;
+    if (!image) {
+      return res.status(400).json({ error: 'Image is required' });
+    }
+
+    res.json(await uploadGalleryImage(image));
+  } catch (e) {
+    console.error('Error uploading image', e);
+    res.status(500).json({ error: 'Failed to upload image' });
+  }
+});
+
+app.get('/api/health', async (req, res) => {
+  try {
+    res.setHeader('Cache-Control', 'no-store');
+    res.json(await checkSupabaseHealth());
+  } catch (e) {
+    console.error('Error checking Supabase health', e);
+    res.status(500).json({ error: 'Failed to check Supabase health' });
+  }
+});
 
 app.get('/api/content', async (req, res) => {
   try {

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useContent } from '../context/ContentContext';
 
 function getYoutubeId(url: string): string | null {
@@ -16,6 +16,14 @@ export function BackgroundMusic() {
   const url = content.audioUrl || '';
   const ytId = getYoutubeId(url);
   const isYoutube = !!ytId;
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+
+  const sendYoutubeCommand = useCallback((command: string) => {
+    ytRef.current?.contentWindow?.postMessage(
+      JSON.stringify({ event: 'command', func: command, args: '' }),
+      '*'
+    );
+  }, []);
 
   // Sync HTML5 audio
   useEffect(() => {
@@ -51,21 +59,15 @@ export function BackgroundMusic() {
   // Sync YouTube audio via postMessage
   useEffect(() => {
     if (isYoutube && ytRef.current) {
-      const iframe = ytRef.current;
-      const sendCommand = (command: string) => {
-        iframe.contentWindow?.postMessage(
-          JSON.stringify({ event: 'command', func: command, args: '' }),
-          '*'
-        );
-      };
-
       if (audioPlaying) {
-        sendCommand('playVideo');
+        sendYoutubeCommand('playVideo');
+        const retry = window.setTimeout(() => sendYoutubeCommand('playVideo'), 700);
+        return () => window.clearTimeout(retry);
       } else {
-        sendCommand('pauseVideo');
+        sendYoutubeCommand('pauseVideo');
       }
     }
-  }, [audioPlaying, isYoutube, url]);
+  }, [audioPlaying, isYoutube, sendYoutubeCommand, url]);
 
   if (!url) return null;
 
@@ -73,18 +75,15 @@ export function BackgroundMusic() {
     return (
       <iframe
         ref={ytRef}
-        src={`https://www.youtube.com/embed/${ytId}?enablejsapi=1&autoplay=${audioPlaying ? 1 : 0}&loop=1&playlist=${ytId}&controls=0`}
+        src={`https://www.youtube.com/embed/${ytId}?enablejsapi=1&playsinline=1&autoplay=0&loop=1&playlist=${ytId}&controls=0&origin=${encodeURIComponent(origin)}`}
         className="fixed -top-[999px] -left-[999px] w-1 h-1 pointer-events-none opacity-0"
         title="Background Music"
-        allow="autoplay"
+        allow="autoplay; encrypted-media"
+        referrerPolicy="strict-origin-when-cross-origin"
         onLoad={() => {
           if (audioPlaying) {
-            setTimeout(() => {
-              ytRef.current?.contentWindow?.postMessage(
-                JSON.stringify({ event: 'command', func: 'playVideo', args: '' }),
-                '*'
-              );
-            }, 500);
+            setTimeout(() => sendYoutubeCommand('playVideo'), 250);
+            setTimeout(() => sendYoutubeCommand('playVideo'), 900);
           }
         }}
       />

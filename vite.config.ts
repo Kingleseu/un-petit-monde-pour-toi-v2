@@ -4,8 +4,11 @@ import path from 'path';
 import {defineConfig} from 'vite';
 import dotenv from 'dotenv';
 import { getContent, resetContent, saveContent } from './lib/contentStore.js';
+import { uploadGalleryImage } from './lib/imageStore.js';
 import { addMessage, deleteMessage, getMessages } from './lib/messagesStore.js';
+import { checkSupabaseHealth } from './lib/supabaseHealth.js';
 
+dotenv.config({ path: '.env.local' });
 dotenv.config();
 
 function readRequestBody(req: import('http').IncomingMessage): Promise<any> {
@@ -35,7 +38,28 @@ export default defineConfig(() => {
         configureServer(server) {
           server.middlewares.use(async (req, res, next) => {
             const urlPath = req.url ? req.url.split('?')[0] : '';
-            if (urlPath === '/api/content' && req.method === 'GET') {
+            if (urlPath === '/api/upload-image' && req.method === 'POST') {
+              try {
+                const data = await readRequestBody(req);
+                const result = await uploadGalleryImage(data.image);
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(result));
+              } catch (e) {
+                console.error(e);
+                res.statusCode = 500;
+                res.end(JSON.stringify({ error: 'Failed to upload image' }));
+              }
+            } else if (urlPath === '/api/health' && req.method === 'GET') {
+              try {
+                const health = await checkSupabaseHealth();
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(health));
+              } catch (e) {
+                console.error(e);
+                res.statusCode = 500;
+                res.end(JSON.stringify({ error: 'Failed to check Supabase health' }));
+              }
+            } else if (urlPath === '/api/content' && req.method === 'GET') {
               try {
                 const content = await getContent();
                 res.setHeader('Content-Type', 'application/json');

@@ -48,6 +48,21 @@ const compressAndResizeImage = (file: File): Promise<string> => {
   });
 };
 
+const uploadImage = async (dataUrl: string): Promise<string> => {
+  const res = await fetch('/api/upload-image', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ image: dataUrl })
+  });
+
+  if (!res.ok) {
+    throw new Error('Image upload failed');
+  }
+
+  const data = await res.json();
+  return data.url;
+};
+
 const Input = ({ label, value, onChange, type = "text", placeholder = "" }: any) => (
   <div className="mb-4">
     <label className="block text-xs uppercase tracking-widest text-[#D4AF37] mb-2">{label}</label>
@@ -66,6 +81,7 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
   const { content, updateContent, resetContent, dynamicMessages, deleteMessage } = useContent();
   const [formData, setFormData] = useState<AppContent>(content);
   const [copied, setCopied] = useState(false);
+  const [uploadingPhotoIndex, setUploadingPhotoIndex] = useState<number | null>(null);
 
   const guestbookUrl = `${window.location.origin}/message`;
 
@@ -240,12 +256,21 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
                               onChange={async (e) => {
                                 const file = e.target.files?.[0];
                                 if (file) {
+                                  setUploadingPhotoIndex(i);
                                   try {
                                     const base64 = await compressAndResizeImage(file);
-                                    updateArrayItem('galleryPhotos', i, 'url', base64);
+                                    try {
+                                      const uploadedUrl = await uploadImage(base64);
+                                      updateArrayItem('galleryPhotos', i, 'url', uploadedUrl);
+                                    } catch (uploadErr) {
+                                      console.warn("L'image reste en local car l'upload a echoue", uploadErr);
+                                      updateArrayItem('galleryPhotos', i, 'url', base64);
+                                    }
                                   } catch (err) {
                                     alert("Erreur lors du traitement de l'image");
                                     console.error(err);
+                                  } finally {
+                                    setUploadingPhotoIndex(null);
                                   }
                                 }
                               }}
@@ -256,7 +281,7 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
                             <input 
                               type="text" 
                               placeholder={isBase64 ? "Image locale importée" : "Ou coller une URL d'image web..."} 
-                              value={isBase64 ? "Image locale (Base64)" : photo.url} 
+                              value={uploadingPhotoIndex === i ? "Upload en cours..." : isBase64 ? "Image locale (Base64)" : photo.url} 
                               disabled={isBase64}
                               onChange={(e) => updateArrayItem('galleryPhotos', i, 'url', e.target.value)}
                               className={`flex-grow bg-white/5 border border-white/10 rounded-lg p-3 text-white text-sm focus:border-[#D4AF37] outline-none transition-colors w-full ${isBase64 ? 'opacity-60 cursor-not-allowed select-none font-mono text-xs' : ''}`} 

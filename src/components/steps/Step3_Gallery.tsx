@@ -12,6 +12,7 @@ export function StepGallery({ onNext }: Props) {
   const { content } = useContent();
   const [selectedPhoto, setSelectedPhoto] = useState<{ url: string; caption: string } | null>(null);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [failedImages, setFailedImages] = useState<Record<number, boolean>>({});
 
   return (
     <div className="min-h-screen py-20 px-6 max-w-5xl mx-auto flex flex-col items-center">
@@ -67,14 +68,26 @@ export function StepGallery({ onNext }: Props) {
                 >
                   {/* Image container with grain effect */}
                   <div className="relative aspect-[4/3] overflow-hidden bg-white">
-                    <img 
-                      src={photo.url} 
-                      alt="Souvenir" 
-                      className="w-full h-full object-cover transition-transform duration-500"
-                      style={{
-                        transform: hoveredIdx === idx ? 'scale(1.08)' : 'scale(1)',
-                      }}
-                    />
+                    {photo.url && !failedImages[idx] ? (
+                      <img
+                        src={photo.url}
+                        alt={photo.caption || 'Souvenir'}
+                        loading="lazy"
+                        decoding="async"
+                        referrerPolicy="no-referrer"
+                        onError={() => setFailedImages(prev => ({ ...prev, [idx]: true }))}
+                        className="w-full h-full object-cover transition-transform duration-500"
+                        style={{
+                          transform: hoveredIdx === idx ? 'scale(1.08)' : 'scale(1)',
+                        }}
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-[#1b1020] p-6 text-center">
+                        <p className="text-xs uppercase tracking-[0.2em] text-white/50">
+                          Image indisponible
+                        </p>
+                      </div>
+                    )}
                     {/* Film grain overlay */}
                     <div 
                       className="absolute inset-0 opacity-5 pointer-events-none"

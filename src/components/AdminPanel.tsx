@@ -161,9 +161,68 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
             </button>
           </div>
         </div>
-        
         <div className="space-y-16">
           
+          {/* Modèles (Thèmes) & Transitions */}
+          <section>
+            <h3 className="text-xl font-serif text-white mb-6 border-l-2 border-[#D4AF37] pl-4">🎨 Modèle visuel & Transitions (v3.0 Premium)</h3>
+            
+            {/* Template Selection */}
+            <div className="mb-8">
+              <label className="block text-xs uppercase tracking-widest text-[#D4AF37] mb-4">Choisir le modèle de l'expérience</label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { id: 'romance', name: 'Romance Classique', desc: 'Or & violet de luxe, lucioles et typographie poétique.', colors: ['#1a0033', '#D4AF37', '#ff6b9d'] },
+                  { id: 'retro', name: 'Néon Rétro (Synthwave)', desc: 'Néons clignotants, cassette audio et grille cyberpunk.', colors: ['#0c0816', '#ff007f', '#00f0ff'] },
+                  { id: 'pastel', name: 'Mignon Pastel', desc: 'Style scrapbook, CD rigolo et autocollants doux.', colors: ['#fff5f5', '#ff9aa2', '#b5ead7'] },
+                  { id: 'minimal', name: 'Cinématique Sombre', desc: 'Noir mat minimaliste, accents argentés et brouillard.', colors: ['#080808', '#ffffff', '#888888'] },
+                ].map((tmpl) => (
+                  <button
+                    key={tmpl.id}
+                    type="button"
+                    onClick={() => handleChange('templateId', tmpl.id)}
+                    className={`flex flex-col text-left p-4 rounded-xl border-2 transition-all ${
+                      formData.templateId === tmpl.id
+                        ? 'border-[#D4AF37] bg-white/5 shadow-lg shadow-[#D4AF37]/10'
+                        : 'border-white/10 bg-transparent hover:border-white/20'
+                    }`}
+                  >
+                    <div className="flex gap-1.5 mb-3">
+                      {tmpl.colors.map((c, idx) => (
+                        <div key={idx} className="w-3.5 h-3.5 rounded-full border border-white/10" style={{ backgroundColor: c }} />
+                      ))}
+                    </div>
+                    <span className="text-xs font-semibold text-white block mb-1">{tmpl.name}</span>
+                    <span className="text-[10px] text-white/50 leading-normal">{tmpl.desc}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Transition Style Selection */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-[#D4AF37] mb-2">Style de transition entre les chapitres</label>
+                <select
+                  value={formData.transitionType || 'fade'}
+                  onChange={(e) => handleChange('transitionType', e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:border-[#D4AF37] outline-none transition-colors text-sm"
+                >
+                  <option value="fade" className="bg-[#050508]">Fondu de lumière (Romantique)</option>
+                  <option value="glitch" className="bg-[#050508]">Glitch CRT (Néon Cyber)</option>
+                  <option value="bubble" className="bg-[#050508]">Rideau de bulles (Cute Pastel)</option>
+                  <option value="slide" className="bg-[#050508]">Rideau Coulissant (Mat Minimal)</option>
+                </select>
+              </div>
+              <div className="flex flex-col justify-center bg-white/5 border border-white/5 p-4 rounded-xl">
+                <span className="text-[11px] uppercase tracking-widest text-[#D4AF37] font-semibold mb-1">💡 Suggestion de Monétisation</span>
+                <span className="text-[10px] text-white/60 leading-normal">
+                  Chaque modèle modifie les 8 étapes, y compris les animations (CD, vinyle, cassette, parchemin ou écran TV). Vous pouvez monétiser la création de modèles personnalisés en option premium !
+                </span>
+              </div>
+            </div>
+          </section>
+
           {/* Global & Lock */}
           <section>
             <h3 className="text-xl font-serif text-white mb-6 border-l-2 border-[#D4AF37] pl-4">🔑 Sécurité (Étape 0)</h3>

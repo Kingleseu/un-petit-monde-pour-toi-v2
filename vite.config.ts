@@ -109,7 +109,14 @@ export default defineConfig(() => {
                   return;
                 }
 
-                const messages = await addMessage({ text: data.text, author: data.author, word: data.word });
+                const messages = await addMessage({
+                  text: data.text,
+                  author: data.author,
+                  word: data.word,
+                  template: data.template,
+                  stepId: data.stepId,
+                  recipientName: data.recipientName
+                });
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify({ success: true, messages }));
               } catch (e) {

@@ -85,13 +85,13 @@ app.get('/api/messages', async (req, res) => {
 
 // API to save a message
 app.post('/api/messages', async (req, res) => {
-  const { text, author, word } = req.body;
+  const { text, author, word, template, stepId, recipientName } = req.body;
   if (!text || !author) {
     return res.status(400).json({ error: 'Text and author are required' });
   }
 
   try {
-    const messages = await addMessage({ text, author, word });
+    const messages = await addMessage({ text, author, word, template, stepId, recipientName });
     res.json({ success: true, messages });
   } catch (e) {
     console.error('Error writing message', e);

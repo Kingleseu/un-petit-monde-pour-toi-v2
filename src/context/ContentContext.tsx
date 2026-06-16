@@ -16,7 +16,7 @@ interface ContentContextType {
   refreshMessages: () => Promise<void>;
 }
 
-const ContentContext = createContext<ContentContextType | undefined>(undefined);
+export const ContentContext = createContext<ContentContextType | undefined>(undefined);
 
 export function ContentProvider({ children }: { children: ReactNode }) {
   const [content, setContent] = useState<AppContent>(defaultContent);

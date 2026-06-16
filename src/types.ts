@@ -1,4 +1,6 @@
 export interface AppContent {
+  templateId?: 'romance' | 'retro' | 'pastel' | 'minimal';
+  transitionType?: 'fade' | 'glitch' | 'bubble' | 'slide';
   recipientName: string;
   introText1: string;
   introText2: string;
@@ -7,6 +9,10 @@ export interface AppContent {
   galleryPhotos: { url: string; caption: string }[];
   playlistTitle: string;
   playlistSubtitle: string;
+  playlistMode?: 'single' | 'playlist';
+  playlistUrl?: string;
+  playlistNote?: string;
+  playlistTracks?: { title: string; artist?: string; url?: string }[];
   letterParts: string[];
   friendMessages: { text: string; author: string; word?: string }[];
   defaultWords?: string[];

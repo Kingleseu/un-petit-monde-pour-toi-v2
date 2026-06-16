@@ -1,10 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:wght@300;400;500;600&family=Dancing+Script:wght@600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:wght@300;400;500;600&family=Dancing+Script:wght@600&family=Fredoka:wght@400;600&family=Orbitron:wght@400;700&family=Outfit:wght@300;400;600&family=Quicksand:wght@400;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "DM Sans", sans-serif;
   --font-serif: "Cormorant Garamond", serif;
   --font-script: "Dancing Script", cursive;
+  --font-retro: "Orbitron", sans-serif;
+  --font-mono-retro: "Space Mono", monospace;
+  --font-pastel: "Quicksand", sans-serif;
+  --font-pastel-accent: "Fredoka", sans-serif;
+  --font-minimal: "Outfit", sans-serif;
 }
 
 body {
@@ -252,4 +257,139 @@ textarea {
   );
   transform: translateX(-50%);
   opacity: 0.3;
+}
+
+/* ---- Theme Variables and Classes ---- */
+.theme-romance {
+  --font-primary: "Cormorant Garamond", serif;
+  --font-secondary: "DM Sans", sans-serif;
+  --color-accent: #D4AF37;
+  --color-accent-hover: #fdeea0;
+  --color-accent-rgb: 212, 175, 55;
+  --color-bg-base: #05050a;
+}
+
+.theme-retro {
+  --font-primary: "Orbitron", sans-serif;
+  --font-secondary: "Space Mono", monospace;
+  --color-accent: #ff007f;
+  --color-accent-hover: #00f0ff;
+  --color-accent-rgb: 255, 0, 127;
+  --color-bg-base: #0c0816;
+}
+
+.theme-pastel {
+  --font-primary: "Fredoka", sans-serif;
+  --font-secondary: "Quicksand", sans-serif;
+  --color-accent: #ff9aa2;
+  --color-accent-hover: #e8aeff;
+  --color-accent-rgb: 255, 154, 162;
+  --color-bg-base: #fffbf0;
+}
+
+.theme-minimal {
+  --font-primary: "Outfit", sans-serif;
+  --font-secondary: "Outfit", sans-serif;
+  --color-accent: #ffffff;
+  --color-accent-hover: #a3a3a3;
+  --color-accent-rgb: 255, 255, 255;
+  --color-bg-base: #080808;
+}
+
+/* Dynamic CSS class binders */
+.text-custom-title {
+  font-family: var(--font-primary);
+}
+.text-custom-body {
+  font-family: var(--font-secondary);
+}
+.text-custom-accent {
+  color: var(--color-accent);
+}
+.bg-custom-accent {
+  background-color: var(--color-accent);
+}
+.border-custom-accent {
+  border-color: var(--color-accent);
+}
+
+/* --- Retro Theme Specifics --- */
+.retro-glow-text {
+  text-shadow: 0 0 10px rgba(255, 0, 127, 0.7), 0 0 20px rgba(0, 240, 255, 0.5);
+}
+.retro-border-glow {
+  box-shadow: 0 0 15px rgba(255, 0, 127, 0.4), inset 0 0 10px rgba(0, 240, 255, 0.2);
+  border: 1px solid rgba(255, 0, 127, 0.6);
+}
+
+/* --- Pastel Theme Specifics --- */
+.pastel-paper {
+  background: #ffffff;
+  border: 3px solid #ffccd5;
+  box-shadow: 5px 5px 0px #ffccd5;
+  border-radius: 16px;
+}
+.washi-tape {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-3deg);
+  width: 90px;
+  height: 25px;
+  background-color: rgba(255, 214, 165, 0.7);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border-left: 2px dashed rgba(255,255,255,0.5);
+  border-right: 2px dashed rgba(255,255,255,0.5);
+}
+.sticker-pop {
+  filter: drop-shadow(2px 2px 0px rgba(255,154,162,0.4));
+}
+
+/* --- Minimal Theme Specifics --- */
+.minimal-border {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.minimal-card {
+  background: rgba(10, 10, 10, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+}
+
+/* --- TV Screen CRT overlay (Retro) --- */
+.crt-overlay {
+  position: relative;
+  overflow: hidden;
+}
+.crt-overlay::before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  z-index: 2;
+  background-size: 100% 3px, 6px 100%;
+  pointer-events: none;
+}
+
+/* --- Bubble animation (Pastel) --- */
+@keyframes rise-bubbles {
+  0% { transform: translateY(110vh) scale(0.8); opacity: 0; }
+  10% { opacity: 0.6; }
+  90% { opacity: 0.6; }
+  100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+}
+
+/* --- Glitch Animations (Retro) --- */
+@keyframes textGlitch {
+  0% { text-shadow: 0.05em 0 0 rgba(255,0,127,.75), -0.05em -0.025em 0 rgba(0,240,255,.75); }
+  14% { text-shadow: 0.05em 0 0 rgba(255,0,127,.75), -0.05em -0.025em 0 rgba(0,240,255,.75); }
+  15% { text-shadow: -0.05em -0.025em 0 rgba(255,0,127,.75), 0.025em 0.035em 0 rgba(0,240,255,.75); }
+  49% { text-shadow: -0.05em -0.025em 0 rgba(255,0,127,.75), 0.025em 0.035em 0 rgba(0,240,255,.75); }
+  50% { text-shadow: 0.025em 0.05em 0 rgba(255,0,127,.75), -0.025em 0.05em 0 rgba(0,240,255,.75); }
+  99% { text-shadow: 0.025em 0.05em 0 rgba(255,0,127,.75), -0.025em 0.05em 0 rgba(0,240,255,.75); }
+  100% { text-shadow: -0.025em 0 0 rgba(255,0,127,.75), -0.025em -0.025em 0 rgba(0,240,255,.75); }
+}
+
+.animate-glitch {
+  animation: textGlitch 1.5s infinite;
 }
